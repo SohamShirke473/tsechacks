@@ -153,7 +153,7 @@ export default function SmartSoilDashboard() {
                     <>
                         {/* Top Stats Row */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                            {result.siteAnalysis && (
+                            {result.siteAnalysis && result.siteAnalysis.ssi_score !== undefined && (
                                 <StatCard
                                     label="Site SSI"
                                     value={result.siteAnalysis.ssi_score.toFixed(2)}

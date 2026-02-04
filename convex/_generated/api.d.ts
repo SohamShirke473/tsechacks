@@ -10,6 +10,7 @@
 
 import type * as actions from "../actions.js";
 import type * as analysis from "../analysis.js";
+import type * as continuousAnalytics from "../continuousAnalytics.js";
 import type * as projects from "../projects.js";
 import type * as riskPrediction from "../riskPrediction.js";
 
@@ -22,6 +23,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   actions: typeof actions;
   analysis: typeof analysis;
+  continuousAnalytics: typeof continuousAnalytics;
   projects: typeof projects;
   riskPrediction: typeof riskPrediction;
 }>;

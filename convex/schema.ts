@@ -41,33 +41,56 @@ export default defineSchema({
         // Risk prediction data from external API
         riskPrediction: v.optional(v.object({
             metadata: v.object({
-                lat: v.number(),
-                lon: v.number(),
                 species: v.string(),
-                timestamp: v.string()
-            }),
-            short_term: v.object({
-                temp_z_score: v.number(),
-                rain_z_score: v.number(),
-                humidity_z_score: v.number(),
-                disease_outbreak_risk: v.string()
+                analysis_duration: v.string(),
+                trend_status: v.string()
             }),
             long_term: v.object({
                 survival_probability_3yr: v.number(),
-                primary_threat: v.string(),
-                status: v.string(),
-                climatology: v.object({
-                    annual_max: v.string(),
-                    annual_min: v.string(),
-                    annual_rainfall_mm: v.number()
-                })
+                heat_stress_trend: v.object({
+                    year_1: v.number(),
+                    year_2: v.number(),
+                    year_3: v.number()
+                }),
+                average_annual_rainfall: v.number(),
+                primary_threat: v.string()
             }),
-            biological_thresholds: v.object({
-                max_temp: v.number(),
-                min_temp: v.number(),
-                water_needs: v.string(),
-                max_annual_rain: v.number(),
-                vulnerability: v.number()
+            time_series_graph: v.object({
+                description: v.string(),
+                data_points: v.array(v.object({
+                    month_index: v.number(),
+                    date: v.string(),
+                    avg_temp: v.number(),
+                    total_rain: v.number(),
+                    temp_limit: v.number()
+                }))
+            })
+        })),
+        // Continuous analytics data from external API
+        continuousAnalytics: v.optional(v.object({
+            meta: v.object({
+                lat: v.number(),
+                lon: v.number(),
+                ndvi_source: v.string(),
+                simulation_active: v.boolean()
+            }),
+            widget_growth_curve: v.object({
+                title: v.string(),
+                x_axis_labels: v.array(v.string()),
+                y_axis_data: v.array(v.number()),
+                total_potential: v.string()
+            }),
+            widget_health_badge: v.object({
+                status: v.string(),
+                density_gain: v.string(),
+                current_ndvi_value: v.number(),
+                ui_color: v.string()
+            }),
+            widget_audit_stamp: v.object({
+                verified_by: v.string(),
+                dataset: v.string(),
+                productivity_factor: v.number(),
+                growth_velocity_k: v.number()
             })
         }))
     }).index("by_location", ["lat", "lon"])

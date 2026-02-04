@@ -27,13 +27,26 @@ export const predictRisk = action({
 
             const data = await response.json();
 
+            // Transform data to match schema (Year 1 -> year_1)
+            const formattedData = {
+                ...data,
+                long_term: {
+                    ...data.long_term,
+                    heat_stress_trend: {
+                        year_1: data.long_term.heat_stress_trend["Year 1"],
+                        year_2: data.long_term.heat_stress_trend["Year 2"],
+                        year_3: data.long_term.heat_stress_trend["Year 3"],
+                    }
+                }
+            };
+
             // Store the risk prediction data in the analysis
             await ctx.runMutation(api.riskPrediction.saveRiskPrediction, {
                 analysisId: args.analysisId,
-                riskData: data
+                riskData: formattedData
             });
 
-            return data;
+            return formattedData;
         } catch (error) {
             console.error("Error fetching risk prediction:", error);
             throw new Error(`Failed to fetch risk prediction: ${error instanceof Error ? error.message : 'Unknown error'}`);

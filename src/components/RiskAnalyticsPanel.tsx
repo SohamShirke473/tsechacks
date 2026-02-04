@@ -4,6 +4,8 @@ import { useQuery, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { useState } from "react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 
 interface RiskAnalyticsPanelProps {
     selectedProjectId: Id<"projects"> | null;
@@ -52,26 +54,19 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
         }
     };
 
-    const getRiskColor = (risk: string) => {
-        switch (risk.toUpperCase()) {
-            case "LOW":
-                return "bg-green-100 text-green-800 border-green-300";
-            case "MEDIUM":
-                return "bg-yellow-100 text-yellow-800 border-yellow-300";
-            case "HIGH":
-                return "bg-orange-100 text-orange-800 border-orange-300";
-            case "CRITICAL":
-                return "bg-red-100 text-red-800 border-red-300";
-            default:
-                return "bg-gray-100 text-gray-800 border-gray-300";
+    const chartConfig = {
+        avg_temp: {
+            label: "Avg Temp (°C)",
+            color: "hsl(var(--chart-1))",
+        },
+        total_rain: {
+            label: "Total Rain (mm)",
+            color: "hsl(var(--chart-2))",
+        },
+        temp_limit: {
+            label: "Temp Limit",
+            color: "hsl(var(--chart-3))",
         }
-    };
-
-    const getStatusColor = (status: string) => {
-        if (status.includes("CRITICAL")) return "text-red-600";
-        if (status.includes("WARNING")) return "text-orange-600";
-        if (status.includes("GOOD")) return "text-green-600";
-        return "text-gray-600";
     };
 
     return (
@@ -95,6 +90,10 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
 
                         // Get species from selected plants or results
                         const species = analysis.selectedPlants?.[0] || analysis.results?.[0]?.plantName || "Unknown";
+
+                        // Type safe access to risk prediction data based on new schema
+                        // Note: The schema type on frontend might lag until generic generation, so we cast if needed or rely on robust checks
+                        const riskData = analysis.riskPrediction as any;
 
                         return (
                             <div key={analysis._id} className="border border-gray-200 rounded-xl p-6 space-y-4 bg-gradient-to-br from-white to-gray-50">
@@ -134,152 +133,104 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
                                 </div>
 
                                 {/* Risk Prediction Data */}
-                                {hasRiskData && analysis.riskPrediction && (
-                                    <div className="space-y-4 mt-4">
-                                        {/* Short-term Metrics */}
-                                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                <span>⚡</span>
-                                                Short-term Risk Assessment
-                                            </h4>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Temperature Z-Score</p>
-                                                    <p className="text-2xl font-bold text-gray-900 mt-1">
-                                                        {analysis.riskPrediction.short_term.temp_z_score.toFixed(2)}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Rainfall Z-Score</p>
-                                                    <p className="text-2xl font-bold text-gray-900 mt-1">
-                                                        {analysis.riskPrediction.short_term.rain_z_score.toFixed(2)}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Humidity Z-Score</p>
-                                                    <p className="text-2xl font-bold text-gray-900 mt-1">
-                                                        {analysis.riskPrediction.short_term.humidity_z_score.toFixed(2)}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Disease Risk</p>
-                                                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold border mt-1 ${getRiskColor(analysis.riskPrediction.short_term.disease_outbreak_risk)}`}>
-                                                        {analysis.riskPrediction.short_term.disease_outbreak_risk}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                {hasRiskData && riskData && (
+                                    <div className="space-y-6 mt-4">
 
-                                        {/* Long-term Survival */}
-                                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                <span>📈</span>
-                                                Long-term Survival Analysis
-                                            </h4>
-                                            <div className="space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-gray-600">3-Year Survival Probability</span>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-32 bg-gray-200 rounded-full h-3 overflow-hidden">
+                                        {/* Long-term Metrics */}
+                                        <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                                                    <span>🛡️</span>
+                                                    Long-term Analysis <span className="text-xs font-normal text-gray-500">({riskData.metadata.analysis_duration})</span>
+                                                </h4>
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${riskData.metadata.trend_status === 'STABLE' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
+                                                    {riskData.metadata.trend_status}
+                                                </span>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <div className="p-3 bg-gray-50 rounded-lg">
+                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Survival Probability (3yr)</p>
+                                                    <div className="mt-2 flex items-center gap-2">
+                                                        <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
                                                             <div
-                                                                className="bg-gradient-to-r from-blue-500 to-green-500 h-full rounded-full transition-all"
-                                                                style={{ width: `${analysis.riskPrediction.long_term.survival_probability_3yr * 100}%` }}
-                                                            />
+                                                                className="bg-green-500 h-full rounded-full transition-all duration-500"
+                                                                style={{ width: `${(riskData.long_term.survival_probability_3yr * 100)}%` }}
+                                                            ></div>
                                                         </div>
-                                                        <span className="font-bold text-lg text-gray-900">
-                                                            {(analysis.riskPrediction.long_term.survival_probability_3yr * 100).toFixed(1)}%
-                                                        </span>
+                                                        <span className="font-bold text-gray-900">{(riskData.long_term.survival_probability_3yr * 100).toFixed(0)}%</span>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-gray-600">Primary Threat</span>
-                                                    <span className="font-semibold text-orange-600">
-                                                        {analysis.riskPrediction.long_term.primary_threat}
-                                                    </span>
+                                                <div className="p-3 bg-gray-50 rounded-lg">
+                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Avg Annual Rainfall</p>
+                                                    <p className="text-lg font-bold text-blue-600 mt-1">{riskData.long_term.average_annual_rainfall} mm</p>
                                                 </div>
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-gray-600">Status</span>
-                                                    <span className={`font-bold text-lg ${getStatusColor(analysis.riskPrediction.long_term.status)}`}>
-                                                        {analysis.riskPrediction.long_term.status}
-                                                    </span>
+                                                <div className="p-3 bg-gray-50 rounded-lg">
+                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Primary Threat</p>
+                                                    <p className="text-lg font-bold text-red-500 mt-1">{riskData.long_term.primary_threat}</p>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        {/* Climatology */}
-                                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                <span>🌡️</span>
-                                                Climate Profile
-                                            </h4>
-                                            <div className="grid grid-cols-3 gap-4">
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Annual Max</p>
-                                                    <p className="text-lg font-bold text-red-600 mt-1">
-                                                        {analysis.riskPrediction.long_term.climatology.annual_max}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Annual Min</p>
-                                                    <p className="text-lg font-bold text-blue-600 mt-1">
-                                                        {analysis.riskPrediction.long_term.climatology.annual_min}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Annual Rainfall</p>
-                                                    <p className="text-lg font-bold text-cyan-600 mt-1">
-                                                        {analysis.riskPrediction.long_term.climatology.annual_rainfall_mm} mm
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Biological Thresholds */}
-                                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                <span>🧬</span>
-                                                Biological Thresholds
-                                            </h4>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Max Temperature</p>
-                                                    <p className="text-lg font-semibold text-gray-900 mt-1">
-                                                        {analysis.riskPrediction.biological_thresholds.max_temp}°C
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Min Temperature</p>
-                                                    <p className="text-lg font-semibold text-gray-900 mt-1">
-                                                        {analysis.riskPrediction.biological_thresholds.min_temp}°C
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Water Needs</p>
-                                                    <p className="text-lg font-semibold text-gray-900 mt-1">
-                                                        {analysis.riskPrediction.biological_thresholds.water_needs}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Vulnerability</p>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <div className="w-20 bg-gray-200 rounded-full h-2 overflow-hidden">
-                                                            <div
-                                                                className="bg-gradient-to-r from-yellow-500 to-red-500 h-full rounded-full"
-                                                                style={{ width: `${analysis.riskPrediction.biological_thresholds.vulnerability * 100}%` }}
-                                                            />
+                                            <div className="mt-4 pt-4 border-t border-gray-100">
+                                                <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Heat Stress Trend</p>
+                                                <div className="grid grid-cols-3 gap-2 text-center">
+                                                    {Object.entries(riskData.long_term.heat_stress_trend).map(([year, val]: [string, any]) => (
+                                                        <div key={year} className="bg-orange-50 p-2 rounded border border-orange-100">
+                                                            <div className="text-xs text-gray-400">{year.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</div>
+                                                            <div className="font-semibold text-orange-700">{val} days</div>
                                                         </div>
-                                                        <span className="font-semibold text-gray-900">
-                                                            {(analysis.riskPrediction.biological_thresholds.vulnerability * 100).toFixed(0)}%
-                                                        </span>
-                                                    </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Metadata */}
-                                        <div className="text-xs text-gray-400 pt-2 border-t border-gray-200">
-                                            Last updated: {new Date(analysis.riskPrediction.metadata.timestamp).toLocaleString()}
+                                        {/* Time Series Chart */}
+                                        <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
+                                            <div className="mb-4">
+                                                <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                                                    <span>📈</span>
+                                                    Climate Projection
+                                                </h4>
+                                                <p className="text-sm text-gray-500 mt-1">{riskData.time_series_graph.description}</p>
+                                            </div>
+
+                                            <div className="h-[300px] w-full">
+                                                <ChartContainer config={chartConfig} className="h-full w-full">
+                                                    <AreaChart data={riskData.time_series_graph.data_points} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                                        <defs>
+                                                            <linearGradient id="fillRain" x1="0" y1="0" x2="0" y2="1">
+                                                                <stop offset="5%" stopColor="var(--color-total_rain)" stopOpacity={0.8} />
+                                                                <stop offset="95%" stopColor="var(--color-total_rain)" stopOpacity={0.1} />
+                                                            </linearGradient>
+                                                            <linearGradient id="fillTemp" x1="0" y1="0" x2="0" y2="1">
+                                                                <stop offset="5%" stopColor="var(--color-avg_temp)" stopOpacity={0.8} />
+                                                                <stop offset="95%" stopColor="var(--color-avg_temp)" stopOpacity={0.1} />
+                                                            </linearGradient>
+                                                        </defs>
+                                                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                                        <XAxis
+                                                            dataKey="date"
+                                                            tickLine={false}
+                                                            axisLine={false}
+                                                            tickMargin={8}
+                                                            minTickGap={32}
+                                                            tickFormatter={(value) => {
+                                                                const date = new Date(value);
+                                                                return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+                                                            }}
+                                                        />
+                                                        <YAxis yAxisId="left" orientation="left" stroke="var(--color-avg_temp)" />
+                                                        <YAxis yAxisId="right" orientation="right" stroke="var(--color-total_rain)" />
+                                                        <ChartTooltip content={<ChartTooltipContent labelFormatter={(value) => new Date(value).toLocaleDateString()} />} />
+                                                        <ChartLegend content={<ChartLegendContent />} />
+                                                        <Area yAxisId="right" type="monotone" dataKey="total_rain" fill="url(#fillRain)" fillOpacity={0.4} stroke="var(--color-total_rain)" stackId="1" />
+                                                        <Area yAxisId="left" type="monotone" dataKey="avg_temp" fill="url(#fillTemp)" fillOpacity={0.4} stroke="var(--color-avg_temp)" stackId="2" />
+                                                        {/* Optional: Add Temp Limit Line if needed, though Area chart might get busy */}
+                                                    </AreaChart>
+                                                </ChartContainer>
+                                            </div>
                                         </div>
+
                                     </div>
                                 )}
                             </div>
