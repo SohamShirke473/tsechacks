@@ -94,6 +94,15 @@ export default function SmartSoilDashboard() {
                     <>
                         {/* Top Stats Row */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                            {result.siteAnalysis && (
+                                <StatCard
+                                    label="Site SSI"
+                                    value={result.siteAnalysis.ssi_score.toFixed(2)}
+                                    sub={result.siteAnalysis.site_name || "Unknown Site"}
+                                    icon={<Sprout className="w-4 h-4 text-purple-500" />}
+                                    color="purple"
+                                />
+                            )}
                             <StatCard
                                 label="Soil pH"
                                 value={result.soil.ph.toFixed(1)}
@@ -114,13 +123,6 @@ export default function SmartSoilDashboard() {
                                 sub={result.weather.description}
                                 icon={<Thermometer className="w-4 h-4 text-orange-500" />}
                                 color="orange"
-                            />
-                            <StatCard
-                                label="Rainfall"
-                                value={`${result.weather.rainfall}mm`}
-                                sub="Last 3h"
-                                icon={<Wind className="w-4 h-4 text-cyan-500" />}
-                                color="cyan"
                             />
                         </div>
 

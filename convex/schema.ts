@@ -6,6 +6,8 @@ export default defineSchema({
         lat: v.number(),
         lon: v.number(),
         timestamp: v.number(),
+        site_name: v.optional(v.string()), // New field from SiteScouter
+        ssi_score: v.optional(v.number()), // New field from SiteScouter
         soilData: v.object({
             ph: v.number(),
             organicMatter: v.number(),

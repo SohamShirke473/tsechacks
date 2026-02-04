@@ -5,6 +5,8 @@ export const saveAnalysis = mutation({
     args: {
         lat: v.number(),
         lon: v.number(),
+        site_name: v.optional(v.string()), // New field
+        ssi_score: v.optional(v.number()), // New field
         soilData: v.any(), // Using v.any() to avoid duplication of complex types for now, can refine if needed
         weatherData: v.any(),
         results: v.any()
@@ -14,6 +16,8 @@ export const saveAnalysis = mutation({
         const id = await ctx.db.insert("analyses", {
             lat: args.lat,
             lon: args.lon,
+            site_name: args.site_name,
+            ssi_score: args.ssi_score,
             timestamp: Date.now(),
             soilData: args.soilData,
             weatherData: args.weatherData,

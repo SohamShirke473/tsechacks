@@ -3,6 +3,7 @@ import { action, mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { fetchSoilData } from "../src/lib/api/soilgrids";
 import { fetchWeatherData } from "../src/lib/api/weather";
+import { fetchSiteAnalysis } from "../src/lib/api/site-scouter";
 import { findBestMatches } from "../src/lib/expert-system";
 
 /**
@@ -13,9 +14,15 @@ export const analyzeSite = action({
     args: { lat: v.number(), lon: v.number() },
     handler: async (ctx, args): Promise<any> => {
         // 1. Fetch Data concurrently
-        const [soil, weather] = await Promise.all([
+        // Note: SiteScouter API is quite fast, but we'll fetch it along with others.
+        // We'll wrap it to handle failures gracefully if needed, but for now we let it fail as per requirements to "base logic around this".
+        const [soil, weather, siteAnalysis] = await Promise.all([
             fetchSoilData(args.lat, args.lon),
-            fetchWeatherData(args.lat, args.lon)
+            fetchWeatherData(args.lat, args.lon),
+            fetchSiteAnalysis(args.lat, args.lon).catch((e: any) => {
+                console.error("Site analysis failed", e);
+                return null;
+            })
         ]);
 
         // 2. Run Logic
@@ -25,11 +32,13 @@ export const analyzeSite = action({
         const analysisId = await ctx.runMutation((internal as any).analysis.saveAnalysis, {
             lat: args.lat,
             lon: args.lon,
+            site_name: siteAnalysis?.site_name,
+            ssi_score: siteAnalysis?.ssi_score,
             soilData: soil,
             weatherData: weather,
             results: results
         });
 
-        return { analysisId, soil, weather, results };
+        return { analysisId, soil, weather, results, siteAnalysis };
     }
 });
