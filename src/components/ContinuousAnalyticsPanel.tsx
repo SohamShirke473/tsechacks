@@ -98,12 +98,12 @@ function ContinuousAnalysisCard({ analysis, isDroughtSim }: { analysis: any, isD
 
     const species = analysis.selectedPlants?.[0] || analysis.results?.[0]?.plantName || "Neem";
 
-    // Read persisted data from the analysis
-    const persistedData = analysis.continuousAnalytics;
+    // Read persisted data from the analysis based on mode
+    const persistedData = isDroughtSim ? analysis.droughtAnalytics : analysis.continuousAnalytics;
     const hasData = !!persistedData;
 
-    // Check if user needs to re-run (mode mismatch: stored data was for different drought setting)
-    const needsRerun = hasData && persistedData.meta?.simulation_active !== isDroughtSim;
+    // Check if user needs to re-run (if no data exists for the current mode)
+    const needsRerun = !hasData;
 
     const fetchAnalysisData = async () => {
         setLoading(true);

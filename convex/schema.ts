@@ -66,8 +66,35 @@ export default defineSchema({
                 }))
             })
         })),
-        // Continuous analytics data from external API
+        // Continuous analytics data from external API (Normal)
         continuousAnalytics: v.optional(v.object({
+            meta: v.object({
+                lat: v.number(),
+                lon: v.number(),
+                ndvi_source: v.string(),
+                simulation_active: v.boolean()
+            }),
+            widget_growth_curve: v.object({
+                title: v.string(),
+                x_axis_labels: v.array(v.string()),
+                y_axis_data: v.array(v.number()),
+                total_potential: v.string()
+            }),
+            widget_health_badge: v.object({
+                status: v.string(),
+                density_gain: v.string(),
+                current_ndvi_value: v.number(),
+                ui_color: v.string()
+            }),
+            widget_audit_stamp: v.object({
+                verified_by: v.string(),
+                dataset: v.string(),
+                productivity_factor: v.number(),
+                growth_velocity_k: v.number()
+            })
+        })),
+        // Continuous analytics data from external API (Drought Simulation)
+        droughtAnalytics: v.optional(v.object({
             meta: v.object({
                 lat: v.number(),
                 lon: v.number(),

@@ -12,6 +12,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 export default function DashboardPage() {
     const [selectedProjectId, setSelectedProjectId] = useState<Id<"projects"> | null>(null);
     const [viewMode, setViewMode] = useState<'risk' | 'continuous'>('risk');
+    const [isDroughtSim, setIsDroughtSim] = useState(false);
     const projects = useQuery(api.projects.getProjects);
 
     // Get selected project name for AI explanation
@@ -31,6 +32,23 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
+                        {/* Drought Simulation Toggle - Only visible in continuous mode */}
+                        {viewMode === 'continuous' && (
+                            <button
+                                onClick={() => setIsDroughtSim(!isDroughtSim)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border shadow-sm ${isDroughtSim
+                                    ? 'bg-orange-50 border-orange-200 text-orange-700'
+                                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <span className="text-base">{isDroughtSim ? '🏜️' : '💧'}</span>
+                                <span>{isDroughtSim ? 'Drought Sim ON' : 'Drought Sim OFF'}</span>
+                                <div className={`w-10 h-5 rounded-full relative transition-colors ${isDroughtSim ? 'bg-orange-500' : 'bg-gray-300'}`}>
+                                    <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${isDroughtSim ? 'left-5' : 'left-0.5'}`} />
+                                </div>
+                            </button>
+                        )}
+
                         {/* AI Explain Button */}
                         <ExplainByAI
                             projectId={selectedProjectId}
@@ -78,7 +96,7 @@ export default function DashboardPage() {
                         ) : (
                             <ContinuousAnalyticsPanel
                                 selectedProjectId={selectedProjectId}
-                                isDroughtSim={false}
+                                isDroughtSim={isDroughtSim}
                             />
                         )}
                     </div>

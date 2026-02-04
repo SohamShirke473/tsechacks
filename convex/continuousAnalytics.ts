@@ -50,8 +50,16 @@ export const saveContinuousAnalytics = mutation({
         analyticsData: v.any() // Using v.any() for flexibility with API response
     },
     handler: async (ctx, args) => {
-        await ctx.db.patch(args.analysisId, {
-            continuousAnalytics: args.analyticsData
-        });
+        const isDrought = args.analyticsData?.meta?.simulation_active === true;
+
+        if (isDrought) {
+            await ctx.db.patch(args.analysisId, {
+                droughtAnalytics: args.analyticsData
+            });
+        } else {
+            await ctx.db.patch(args.analysisId, {
+                continuousAnalytics: args.analyticsData
+            });
+        }
     }
 });
