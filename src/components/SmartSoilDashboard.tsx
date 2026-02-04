@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useAction } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import dynamic from "next/dynamic";
-import { Loader2, Sprout, Droplets, Thermometer, Wind } from "lucide-react";
+import { Loader2, Sprout, Droplets, Thermometer, Wind, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CreateProjectModal } from "./CreateProjectModal";
+// import { toast } from "sonner"; // Removed dependency
 
 // Dynamically import map with NO SSR
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
@@ -17,9 +19,14 @@ const LeafletMap = dynamic(() => import("./LeafletMap"), {
 
 export default function SmartSoilDashboard() {
     const performAnalysis = useAction(api.actions.analyzeSite);
+    const createProject = useMutation(api.projects.createProject);
+    const addToProject = useMutation(api.projects.addToProject);
+
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null); // Type this properly based on API return
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+    const [isCreatingProject, setIsCreatingProject] = useState(false);
 
     const handleAnalyze = async () => {
         if (!location) return;
@@ -32,6 +39,44 @@ export default function SmartSoilDashboard() {
             alert("Failed to analyze site. Please try again.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSaveToProject = async (data: {
+        projectId?: string;
+        name?: string;
+        description?: string;
+        selectedPlants?: string[];
+    }) => {
+        if (!result || !result.analysisId) return;
+        setIsCreatingProject(true);
+        try {
+            let targetProjectId = data.projectId;
+
+            // If creating new project
+            if (!targetProjectId && data.name) {
+                targetProjectId = await createProject({
+                    name: data.name,
+                    description: data.description || "",
+                });
+            }
+
+            if (targetProjectId) {
+                // Add Analysis to Project with selected plants
+                await addToProject({
+                    projectId: targetProjectId as any,
+                    analysisId: result.analysisId,
+                    selectedPlants: data.selectedPlants
+                });
+
+                setIsProjectModalOpen(false);
+                alert("Saved to project successfully!");
+            }
+        } catch (error) {
+            console.error("Failed to save to project:", error);
+            alert("Failed to save to project.");
+        } finally {
+            setIsCreatingProject(false);
         }
     };
 
@@ -54,25 +99,39 @@ export default function SmartSoilDashboard() {
                             <Card className="bg-white/90 backdrop-blur shadow-xl border-emerald-200">
                                 <div className="p-4 flex items-center justify-between">
                                     <div className="text-sm">
-                                        <div className="font-semibold text-gray-700">Selected Coordinates</div>
+                                        <div className="font-semibold text-gray-700">
+                                            {result?.siteAnalysis?.site_name || "Selected Location"}
+                                        </div>
                                         <div className="font-mono text-xs text-gray-500">
                                             {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
                                         </div>
                                     </div>
-                                    <Button
-                                        onClick={handleAnalyze}
-                                        disabled={loading}
-                                        className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200 shadow-lg"
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Analyzing...
-                                            </>
-                                        ) : (
-                                            "Run Analysis"
+                                    <div className="flex gap-2">
+                                        {result && (
+                                            <Button
+                                                onClick={() => setIsProjectModalOpen(true)}
+                                                variant="outline"
+                                                className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                                            >
+                                                <Save className="w-4 h-4 mr-2" />
+                                                Save Project
+                                            </Button>
                                         )}
-                                    </Button>
+                                        <Button
+                                            onClick={handleAnalyze}
+                                            disabled={loading}
+                                            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200 shadow-lg"
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Analyzing...
+                                                </>
+                                            ) : (
+                                                "Run Analysis"
+                                            )}
+                                        </Button>
+                                    </div>
                                 </div>
                             </Card>
                         </div>
@@ -184,6 +243,14 @@ export default function SmartSoilDashboard() {
                     </>
                 )}
             </div>
+
+            <CreateProjectModal
+                isOpen={isProjectModalOpen}
+                onClose={() => setIsProjectModalOpen(false)}
+                onSubmit={handleSaveToProject}
+                isSubmitting={isCreatingProject}
+                availablePlants={result?.results || []}
+            />
         </div>
     );
 }

@@ -30,7 +30,7 @@ export interface AnalysisResult {
 // Focused on Indian Subcontinent contexts for the Hackathon
 export const KNOWLEDGE_BASE: PlantRequirement[] = [
     {
-        name: "Neem (Azadirachta indica)",
+        name: "Neem",
         idealPh: 7.0,
         phTolerance: 1.5, // 5.5 - 8.5
         idealTemp: 30,
@@ -41,7 +41,7 @@ export const KNOWLEDGE_BASE: PlantRequirement[] = [
         description: " drought-resistant, nitrogen-fixing properties."
     },
     {
-        name: "Tulsi (Ocimum tenuiflorum)",
+        name: "Tulsi",
         idealPh: 6.5,
         phTolerance: 1.0,
         idealTemp: 25,
@@ -52,7 +52,7 @@ export const KNOWLEDGE_BASE: PlantRequirement[] = [
         description: "Medicinal herb, requires good drainage."
     },
     {
-        name: "Bamboo (Bambusa vulgaris)",
+        name: "Bamboo",
         idealPh: 6.0,
         phTolerance: 1.0,
         idealTemp: 25,
@@ -63,7 +63,7 @@ export const KNOWLEDGE_BASE: PlantRequirement[] = [
         description: "Fast growing, good for soil erosion control."
     },
     {
-        name: "Mango (Mangifera indica)",
+        name: "Mango",
         idealPh: 6.0,
         phTolerance: 1.0, // 5.5-7.5
         idealTemp: 27,
@@ -74,7 +74,7 @@ export const KNOWLEDGE_BASE: PlantRequirement[] = [
         description: "Fruit tree, needs deep well-drained soil."
     },
     {
-        name: "Rose (Rosa)",
+        name: "Rose",
         idealPh: 6.5,
         phTolerance: 0.5,
         idealTemp: 20,
@@ -85,7 +85,7 @@ export const KNOWLEDGE_BASE: PlantRequirement[] = [
         description: "Ornamental, requires nutrient-rich soil."
     },
     {
-        name: "Cactus (Opuntia)",
+        name: "Cactus",
         idealPh: 7.5,
         phTolerance: 1.0,
         idealTemp: 35,
@@ -96,7 +96,7 @@ export const KNOWLEDGE_BASE: PlantRequirement[] = [
         description: "Desert specialist, requires sandy soil and low moisture."
     },
     {
-        name: "Fern (Polypodiopsida)",
+        name: "Fern",
         idealPh: 5.5,
         phTolerance: 0.8,
         idealTemp: 22,
@@ -107,7 +107,7 @@ export const KNOWLEDGE_BASE: PlantRequirement[] = [
         description: "Shade-loving, requires moist acidic soil."
     },
     {
-        name: "Lavender (Lavandula)",
+        name: "Lavender",
         idealPh: 7.5,
         phTolerance: 0.5,
         idealTemp: 25,
@@ -118,7 +118,7 @@ export const KNOWLEDGE_BASE: PlantRequirement[] = [
         description: "Aromatic herb, thrives in alkaline, well-drained soil."
     },
     {
-        name: "Blueberry (Vaccinium)",
+        name: "Blueberry",
         idealPh: 5.0,
         phTolerance: 0.5,
         idealTemp: 20,
@@ -129,7 +129,7 @@ export const KNOWLEDGE_BASE: PlantRequirement[] = [
         description: "Acid-loving fruiting shrub."
     },
     {
-        name: "Teak (Tectona grandis)",
+        name: "Teak",
         idealPh: 7.0,
         phTolerance: 0.5,
         idealTemp: 30,
