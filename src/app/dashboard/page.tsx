@@ -5,6 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import ProjectList from "@/components/ProjectList";
 import RiskAnalyticsPanel from "@/components/RiskAnalyticsPanel";
 import ContinuousAnalyticsPanel from "@/components/ContinuousAnalyticsPanel";
+import ExplainByAI from "@/components/ExplainByAI";
 import { useState } from "react";
 import type { Id } from "../../../convex/_generated/dataModel";
 
@@ -12,6 +13,9 @@ export default function DashboardPage() {
     const [selectedProjectId, setSelectedProjectId] = useState<Id<"projects"> | null>(null);
     const [viewMode, setViewMode] = useState<'risk' | 'continuous'>('risk');
     const projects = useQuery(api.projects.getProjects);
+
+    // Get selected project name for AI explanation
+    const selectedProject = projects?.find(p => p._id === selectedProjectId);
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
@@ -26,26 +30,34 @@ export default function DashboardPage() {
                         </p>
                     </div>
 
-                    {/* View Mode Toggle */}
-                    <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 inline-flex">
-                        <button
-                            onClick={() => setViewMode('risk')}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'risk'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'text-gray-600 hover:bg-gray-50'
-                                }`}
-                        >
-                            Risk Analytics
-                        </button>
-                        <button
-                            onClick={() => setViewMode('continuous')}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'continuous'
-                                ? 'bg-emerald-600 text-white shadow-md'
-                                : 'text-gray-600 hover:bg-gray-50'
-                                }`}
-                        >
-                            Continuous Analysis
-                        </button>
+                    <div className="flex items-center gap-3">
+                        {/* AI Explain Button */}
+                        <ExplainByAI
+                            projectId={selectedProjectId}
+                            projectName={selectedProject?.name}
+                        />
+
+                        {/* View Mode Toggle */}
+                        <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 inline-flex">
+                            <button
+                                onClick={() => setViewMode('risk')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'risk'
+                                    ? 'bg-blue-600 text-white shadow-md'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                    }`}
+                            >
+                                Risk Analytics
+                            </button>
+                            <button
+                                onClick={() => setViewMode('continuous')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'continuous'
+                                    ? 'bg-emerald-600 text-white shadow-md'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                    }`}
+                            >
+                                Continuous Analysis
+                            </button>
+                        </div>
                     </div>
                 </header>
 
@@ -66,7 +78,7 @@ export default function DashboardPage() {
                         ) : (
                             <ContinuousAnalyticsPanel
                                 selectedProjectId={selectedProjectId}
-                                isDroughtSim={viewMode === 'drought'}
+                                isDroughtSim={false}
                             />
                         )}
                     </div>

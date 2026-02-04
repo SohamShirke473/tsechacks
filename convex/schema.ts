@@ -102,5 +102,30 @@ export default defineSchema({
         status: v.string(), // "Active", "Archived"
         createdBy: v.optional(v.string()),
         creationTime: v.number()
-    }).index("by_timestamp", ["creationTime"])
+    }).index("by_timestamp", ["creationTime"]),
+
+    // ============================================================
+    // KANBAN BOARD TABLES
+    // ============================================================
+
+    kanbanBoards: defineTable({
+        name: v.string(),
+        description: v.optional(v.string()),
+        createdAt: v.number()
+    }).index("by_created", ["createdAt"]),
+
+    kanbanColumns: defineTable({
+        boardId: v.id("kanbanBoards"),
+        title: v.string(),
+        order: v.number()
+    }).index("by_board", ["boardId"]),
+
+    kanbanTasks: defineTable({
+        columnId: v.id("kanbanColumns"),
+        title: v.string(),
+        description: v.optional(v.string()),
+        priority: v.optional(v.string()), // "low" | "medium" | "high"
+        order: v.number(),
+        aiGenerated: v.optional(v.boolean())
+    }).index("by_column", ["columnId"])
 });
