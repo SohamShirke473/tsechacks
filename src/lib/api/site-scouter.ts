@@ -9,7 +9,6 @@ export interface SiteAnalysisResponse {
 
 export async function fetchSiteAnalysis(lat: number, lon: number, name?: string): Promise<SiteAnalysisResponse> {
     const baseUrl = "https://proglottidean-addyson-malapertly.ngrok-free.dev";
-    // const baseUrl = "http://0.0.0.0:8000";
     const queryName = name ? encodeURIComponent(name) : "Site Assessment";
     const url = `${baseUrl}/analyze/${lat}/${lon}?name=${queryName}`;
 

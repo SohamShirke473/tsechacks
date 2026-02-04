@@ -460,7 +460,7 @@ export default function KanbanBoard({ boardId }: { boardId: Id<"kanbanBoards"> }
 
         if (!targetColumn) {
             // Dropping on a task, find its column
-            targetColumn = findColumnByTaskId(overId);
+            targetColumn = findColumnByTaskId(overId) as any;
             if (targetColumn) {
                 const overTaskIndex = targetColumn.tasks.findIndex((t) => t._id === overId);
                 newOrder = overTaskIndex >= 0 ? overTaskIndex : targetColumn.tasks.length;

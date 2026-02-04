@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useAction, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import dynamic from "next/dynamic";
-import { Loader2, Sprout, Droplets, Thermometer, Wind, Save } from "lucide-react";
+import { Loader2, Sprout, Droplets, Thermometer, Wind, Save, Layers } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CreateProjectModal } from "./CreateProjectModal";
+import { SuitabilityLegend } from "./SuitabilityLegend";
 // import { toast } from "sonner"; // Removed dependency
 
 // Dynamically import map with NO SSR
@@ -27,6 +28,7 @@ export default function SmartSoilDashboard() {
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
     const [isCreatingProject, setIsCreatingProject] = useState(false);
+    const [showHeatmap, setShowHeatmap] = useState(true);
 
     const handleAnalyze = async () => {
         if (!location) return;
@@ -85,14 +87,37 @@ export default function SmartSoilDashboard() {
             {/* Left Panel: Map & Input */}
             <Card className="flex flex-col overflow-hidden border-2 border-emerald-100 shadow-lg">
                 <CardHeader className="bg-emerald-50/50 pb-4">
-                    <CardTitle className="text-emerald-800 flex items-center gap-2">
-                        <Sprout className="w-5 h-5" />
-                        Select Site
-                    </CardTitle>
-                    <p className="text-sm text-emerald-600/80">Click on the map to pinpoint your restoration site.</p>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle className="text-emerald-800 flex items-center gap-2">
+                                <Sprout className="w-5 h-5" />
+                                Select Site
+                            </CardTitle>
+                            <p className="text-sm text-emerald-600/80 mt-1">Click on the map to pinpoint your restoration site.</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {showHeatmap && <SuitabilityLegend />}
+                            <button
+                                onClick={() => setShowHeatmap(!showHeatmap)}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg shadow transition-all duration-200 ${showHeatmap
+                                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                                    }`}
+                                title={showHeatmap ? "Hide Suitability Layer" : "Show Suitability Layer"}
+                            >
+                                <Layers className="w-4 h-4" />
+                                <span className="text-sm font-medium">
+                                    {showHeatmap ? "Hide" : "Show"} Layer
+                                </span>
+                            </button>
+                        </div>
+                    </div>
                 </CardHeader>
                 <div className="flex-1 relative z-0 min-h-[400px]">
-                    <LeafletMap onLocationSelect={(lat, lng) => setLocation({ lat, lng })} />
+                    <LeafletMap
+                        onLocationSelect={(lat, lng) => setLocation({ lat, lng })}
+                        showHeatmap={showHeatmap}
+                    />
 
                     {location && (
                         <div className="absolute bottom-6 left-6 right-6 z-400">
@@ -151,6 +176,41 @@ export default function SmartSoilDashboard() {
                     </div>
                 ) : (
                     <>
+                        {/* Priority Status Banner */}
+                        {result.siteAnalysis && result.siteAnalysis.ssi_score !== undefined && (
+                            <div className={`rounded-lg p-4 mb-2 flex items-center gap-3 ${result.siteAnalysis.ssi_score > 0.75
+                                    ? "bg-emerald-50 border border-emerald-200"
+                                    : result.siteAnalysis.ssi_score > 0.50
+                                        ? "bg-yellow-50 border border-yellow-200"
+                                        : "bg-red-50 border border-red-200"
+                                }`}>
+                                <span className="text-2xl">
+                                    {result.siteAnalysis.ssi_score > 0.75
+                                        ? "🟢"
+                                        : result.siteAnalysis.ssi_score > 0.50
+                                            ? "🟡"
+                                            : "🔴"}
+                                </span>
+                                <div>
+                                    <div className={`font-bold ${result.siteAnalysis.ssi_score > 0.75
+                                            ? "text-emerald-700"
+                                            : result.siteAnalysis.ssi_score > 0.50
+                                                ? "text-yellow-700"
+                                                : "text-red-700"
+                                        }`}>
+                                        {result.siteAnalysis.ssi_score > 0.75
+                                            ? "HIGH PRIORITY"
+                                            : result.siteAnalysis.ssi_score > 0.50
+                                                ? "SUITABLE"
+                                                : "LOW PRIORITY"}
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                        Site Suitability Index: <span className="font-mono font-semibold">{result.siteAnalysis.ssi_score.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Top Stats Row */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                             {result.siteAnalysis && result.siteAnalysis.ssi_score !== undefined && (

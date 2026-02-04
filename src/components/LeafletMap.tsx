@@ -4,12 +4,8 @@ import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
 
 // Fix Leaflet marker icons in Next.js
-// We wrap this in a useEffect or check window to be extra safe, 
-// though dynamic import with ssr: false usually protects it.
 const fixLeafletIcons = () => {
     // @ts-ignore
     delete L.Icon.Default.prototype._getIconUrl;
@@ -36,13 +32,41 @@ function LocationMarker({ onLocationSelect }: { onLocationSelect: (lat: number, 
     );
 }
 
+interface LeafletMapProps {
+    onLocationSelect: (lat: number, lng: number) => void;
+    showHeatmap?: boolean;
+}
+
 export default function LeafletMap({
-    onLocationSelect
-}: {
-    onLocationSelect: (lat: number, lng: number) => void
-}) {
+    onLocationSelect,
+    showHeatmap = true
+}: LeafletMapProps) {
+    const [suitabilityTileUrl, setSuitabilityTileUrl] = useState<string | null>(null);
+
     useEffect(() => {
         fixLeafletIcons();
+
+        // Fetch India suitability heat map tiles
+        const fetchSuitabilityTiles = async () => {
+            try {
+                const response = await fetch(
+                    "https://proglottidean-addyson-malapertly.ngrok-free.dev/api/map/india-suitability",
+                    {
+                        headers: {
+                            "ngrok-skip-browser-warning": "true"
+                        }
+                    }
+                );
+                const data = await response.json();
+                if (data.status === "success" && data.tile_url) {
+                    setSuitabilityTileUrl(data.tile_url);
+                }
+            } catch (error) {
+                console.error("Failed to fetch suitability tiles:", error);
+            }
+        };
+
+        fetchSuitabilityTiles();
     }, []);
 
     return (
@@ -56,7 +80,15 @@ export default function LeafletMap({
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            {showHeatmap && suitabilityTileUrl && (
+                <TileLayer
+                    url={suitabilityTileUrl}
+                    attribution="Google Earth Engine | AgriQCert"
+                    opacity={0.7}
+                />
+            )}
             <LocationMarker onLocationSelect={onLocationSelect} />
         </MapContainer>
     );
 }
+
