@@ -1,0 +1,134 @@
+{
+  "26.23_73.02_Neem": [
+    {
+      "timestamp": "2026-02-04T19:23:20.516537",
+      "ndvi_delta": "40.0%",
+      "restoration_index": 1.6,
+      "verified_factor": 1.2,
+      "projected_10yr_carbon": 459.75
+    },
+    {
+      "timestamp": "2026-02-04T19:25:33.927662",
+      "ndvi_delta": "40.0%",
+      "restoration_index": 1.6,
+      "verified_factor": 1.15,
+      "projected_10yr_carbon": 453.46
+    },
+    {
+      "timestamp": "2026-02-04T21:20:30.760816",
+      "vegetation_density_ndvi": 0.28,
+      "restoration_velocity_rpi": 1.6,
+      "carbon_stored_kg": 421.35
+    },
+    {
+      "timestamp": "2026-02-04T21:30:01.464404",
+      "vegetation_density_ndvi": 0.28,
+      "restoration_velocity_rpi": 1.6,
+      "carbon_stored_kg": 125.7
+    },
+    {
+      "timestamp": "2026-02-04T21:31:18.703090",
+      "vegetation_density_ndvi": 0.28,
+      "restoration_velocity_rpi": 1.6,
+      "carbon_stored_kg": 125.7
+    },
+    {
+      "timestamp": "2026-02-04T22:37:12.072761",
+      "vegetation_density_ndvi": 0.28,
+      "restoration_velocity_rpi": 1.6,
+      "carbon_stored_kg": 125.7
+    }
+  ],
+  "19.076_72.8777_Neem": [
+    {
+      "timestamp": "2026-02-04T23:14:44.909465",
+      "vegetation_density_ndvi": 0.09559322148561478,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 249.66
+    },
+    {
+      "timestamp": "2026-02-05T00:03:51.267744",
+      "vegetation_density_ndvi": 0.09559322148561478,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 249.66
+    }
+  ],
+  "18.95824648598139_73.01513671875001_Tulsi": [
+    {
+      "timestamp": "2026-02-05T00:18:48.453746",
+      "vegetation_density_ndvi": 0.0025813113898038864,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 0.0
+    },
+    {
+      "timestamp": "2026-02-05T00:20:32.432327",
+      "vegetation_density_ndvi": 0.0025813113898038864,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 0.0
+    },
+    {
+      "timestamp": "2026-02-05T00:20:53.731246",
+      "vegetation_density_ndvi": 0.0025813113898038864,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 0.0
+    }
+  ],
+  "18.754210992809288_73.40927124023439_Rose": [
+    {
+      "timestamp": "2026-02-05T00:21:04.483867",
+      "vegetation_density_ndvi": 0.7702758312225342,
+      "restoration_velocity_rpi": 11.41,
+      "carbon_stored_kg": 23.24
+    }
+  ],
+  "20.075280256655788_73.7285614013672_Teak": [
+    {
+      "timestamp": "2026-02-05T00:21:33.776366",
+      "vegetation_density_ndvi": 0.5045372247695923,
+      "restoration_velocity_rpi": 6.09,
+      "carbon_stored_kg": 799.94
+    }
+  ],
+  "17.97873309555617_14.062500000000002_Neem": [
+    {
+      "timestamp": "2026-02-05T00:24:45.769196",
+      "vegetation_density_ndvi": 0.06252702325582504,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 249.66
+    }
+  ],
+  "18.743970203867782_73.65835189819337_Rose": [
+    {
+      "timestamp": "2026-02-05T04:14:21.818848",
+      "vegetation_density_ndvi": 0.18898330628871918,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 0.0
+    },
+    {
+      "timestamp": "2026-02-05T05:07:23.798789",
+      "vegetation_density_ndvi": 0.1606358103454113,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 0.0
+    },
+    {
+      "timestamp": "2026-02-05T05:07:33.366039",
+      "vegetation_density_ndvi": 0.18898330628871918,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 0.0
+    },
+    {
+      "timestamp": "2026-02-05T05:09:32.943465",
+      "vegetation_density_ndvi": 0.1606358103454113,
+      "restoration_velocity_rpi": 0.5,
+      "carbon_stored_kg": 0.0
+    }
+  ],
+  "22.371666279509544_70.03646850585939_Neem": [
+    {
+      "timestamp": "2026-02-05T04:30:08.087639",
+      "vegetation_density_ndvi": 0.5709238052368164,
+      "restoration_velocity_rpi": 7.42,
+      "carbon_stored_kg": 499.63
+    }
+  ]
+}
