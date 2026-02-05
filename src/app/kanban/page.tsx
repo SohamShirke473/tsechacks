@@ -252,10 +252,10 @@ function KanbanTodoBoard({
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                    <div className="w-2 h-8 bg-blue-500 rounded-full" />
+                    <div className="w-1.5 h-6 bg-slate-900 rounded-sm" />
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">To Do</h2>
-                        <p className="text-sm text-gray-500">
+                        <h2 className="text-xl font-bold text-slate-900">To Do</h2>
+                        <p className="text-sm text-slate-500">
                             {tasks.length} task{tasks.length !== 1 ? "s" : ""} generated from analytics
                         </p>
                     </div>
@@ -397,7 +397,7 @@ function CreateBoardModal({
                                 ) : (
                                     <Sparkles className="w-4 h-4 mr-2" />
                                 )}
-                                Create Board
+                                Create Plan
                             </Button>
                         </div>
                     </form>
@@ -425,7 +425,7 @@ function BoardSelector({
     const handleCreate = async (projectId: Id<"projects">) => {
         const project = projects?.find((p) => p._id === projectId);
         const boardId = await createBoard({
-            name: project?.name ? `${project.name} Action Plan` : "Action Plan",
+            name: project?.name ? `${project.name} Strategic Plan` : "Strategic Plan",
             description: `Tasks generated from ${project?.name || "project"} analytics`,
         });
         onSelectBoard(boardId, projectId);
@@ -471,8 +471,8 @@ function BoardSelector({
                     <div className="w-12 h-12 rounded-full bg-gray-100 group-hover:bg-purple-100 flex items-center justify-center transition-colors">
                         <Sparkles className="w-6 h-6 text-gray-400 group-hover:text-purple-600" />
                     </div>
-                    <span className="font-medium text-gray-500 group-hover:text-purple-600">
-                        New Action Plan
+                    <span className="font-medium text-slate-600 group-hover:text-blue-700">
+                        New Strategic Plan
                     </span>
                 </button>
 
@@ -576,15 +576,13 @@ export default function KanbanPage() {
                                     <p className="text-gray-600 text-sm">{board.description}</p>
                                 )}
                             </div>
-                            <Badge variant="secondary" className="flex items-center gap-1 bg-purple-100 text-purple-700">
-                                <Sparkles className="w-3 h-3" />
-                                AI Generated
-                            </Badge>
+
                         </div>
 
                         {/* Kanban Todo Board */}
                         {/* Kanban Todo Board */}
-                        <KanbanBoard boardId={selectedBoardId} />
+                        {/* Kanban Todo Board */}
+                        <KanbanBoard boardId={selectedBoardId} projectId={selectedProjectId} />
 
                     </div>
                 ) : (

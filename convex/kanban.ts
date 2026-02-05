@@ -18,11 +18,21 @@ export const createBoard = mutation({
             createdAt: Date.now(),
         });
 
-        // Create single "To Do" column
+        // Create default columns
         await ctx.db.insert("kanbanColumns", {
             boardId,
             title: "To Do",
             order: 0,
+        });
+        await ctx.db.insert("kanbanColumns", {
+            boardId,
+            title: "In Progress",
+            order: 1,
+        });
+        await ctx.db.insert("kanbanColumns", {
+            boardId,
+            title: "Done",
+            order: 2,
         });
 
         return boardId;
@@ -122,6 +132,36 @@ export const createColumn = mutation({
             title: args.title,
             order: maxOrder + 1,
         });
+    },
+});
+
+export const initializeDefaultColumns = mutation({
+    args: {
+        boardId: v.id("kanbanBoards"),
+    },
+    handler: async (ctx, args) => {
+        const defaultColumns = ["To Do", "In Progress", "Done"];
+        const existingColumns = await ctx.db
+            .query("kanbanColumns")
+            .withIndex("by_board", (q) => q.eq("boardId", args.boardId))
+            .collect();
+
+        const existingTitles = new Set(existingColumns.map((c) => c.title));
+
+        let maxOrder = existingColumns.length > 0
+            ? Math.max(...existingColumns.map((c) => c.order))
+            : -1;
+
+        for (const title of defaultColumns) {
+            if (!existingTitles.has(title)) {
+                maxOrder++;
+                await ctx.db.insert("kanbanColumns", {
+                    boardId: args.boardId,
+                    title,
+                    order: maxOrder,
+                });
+            }
+        }
     },
 });
 

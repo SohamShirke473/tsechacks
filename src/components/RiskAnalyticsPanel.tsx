@@ -6,6 +6,8 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
+import { RandomBlogSpotlight } from "./RandomBlogSpotlight";
+
 
 interface RiskAnalyticsPanelProps {
     selectedProjectId: Id<"projects"> | null;
@@ -96,18 +98,18 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
                         const riskData = analysis.riskPrediction as any;
 
                         return (
-                            <div key={analysis._id} className="border border-gray-200 rounded-xl p-6 space-y-4 bg-gradient-to-br from-white to-gray-50">
+                            <div key={analysis._id} className="border border-slate-200 rounded-lg p-6 space-y-4 bg-white shadow-sm hover:shadow-md transition-shadow">
                                 {/* Analysis Header */}
                                 <div className="flex items-start justify-between">
                                     <div>
                                         <h3 className="font-semibold text-lg text-gray-900">
                                             {analysis.site_name || `Site Analysis`}
                                         </h3>
-                                        <p className="text-sm text-gray-500 mt-1">
-                                            📍 {analysis.lat.toFixed(4)}, {analysis.lon.toFixed(4)}
+                                        <p className="text-sm text-slate-500 mt-1 flex items-center gap-1">
+                                            <span className="text-slate-400">Location:</span> {analysis.lat.toFixed(4)}, {analysis.lon.toFixed(4)}
                                         </p>
-                                        <p className="text-sm text-gray-500">
-                                            🌿 Species: <span className="font-medium text-gray-700">{species}</span>
+                                        <p className="text-sm text-slate-500 flex items-center gap-1">
+                                            <span className="text-slate-400">Species:</span> <span className="font-medium text-slate-700">{species}</span>
                                         </p>
                                     </div>
                                     {!hasRiskData && (
@@ -115,7 +117,7 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
                                             onClick={() => handleFetchRiskPrediction(analysis._id, analysis.lat, analysis.lon, species)}
                                             disabled={isLoading}
                                             type="button"
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                                            className="px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-medium hover:bg-blue-800 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
                                         >
                                             {isLoading ? (
                                                 <>
@@ -124,8 +126,7 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
                                                 </>
                                             ) : (
                                                 <>
-                                                    <span>🔮</span>
-                                                    <span>Predict Risk</span>
+                                                    <span>Predict Risk Assessment</span>
                                                 </>
                                             )}
                                         </button>
@@ -139,11 +140,10 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
                                         {/* Long-term Metrics */}
                                         <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
                                             <div className="flex items-center justify-between mb-4">
-                                                <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                                                    <span>🛡️</span>
-                                                    Long-term Analysis <span className="text-xs font-normal text-gray-500">({riskData.metadata.analysis_duration})</span>
+                                                <h4 className="font-semibold text-slate-900 flex items-center gap-2">
+                                                    Long-term Analysis <span className="text-xs font-normal text-slate-500">({riskData.metadata.analysis_duration})</span>
                                                 </h4>
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${riskData.metadata.trend_status === 'STABLE' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
+                                                <span className={`px-2 py-0.5 rounded text-xs font-semibold border ${riskData.metadata.trend_status === 'STABLE' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
                                                     {riskData.metadata.trend_status}
                                                 </span>
                                             </div>
@@ -152,22 +152,22 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
                                                 <div className="p-3 bg-gray-50 rounded-lg">
                                                     <p className="text-xs text-gray-500 uppercase tracking-wide">Survival Probability (3yr)</p>
                                                     <div className="mt-2 flex items-center gap-2">
-                                                        <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                        <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
                                                             <div
-                                                                className="bg-green-500 h-full rounded-full transition-all duration-500"
+                                                                className="bg-emerald-600 h-full rounded-full transition-all duration-500"
                                                                 style={{ width: `${(riskData.long_term.survival_probability_3yr * 100)}%` }}
                                                             ></div>
                                                         </div>
                                                         <span className="font-bold text-gray-900">{(riskData.long_term.survival_probability_3yr * 100).toFixed(0)}%</span>
                                                     </div>
                                                 </div>
-                                                <div className="p-3 bg-gray-50 rounded-lg">
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Avg Annual Rainfall</p>
-                                                    <p className="text-lg font-bold text-blue-600 mt-1">{riskData.long_term.average_annual_rainfall} mm</p>
+                                                <div className="p-3 bg-slate-50 rounded border border-slate-100">
+                                                    <p className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Avg Annual Rainfall</p>
+                                                    <p className="text-lg font-bold text-blue-700 mt-1">{riskData.long_term.average_annual_rainfall} mm</p>
                                                 </div>
-                                                <div className="p-3 bg-gray-50 rounded-lg">
-                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Primary Threat</p>
-                                                    <p className="text-lg font-bold text-red-500 mt-1">{riskData.long_term.primary_threat}</p>
+                                                <div className="p-3 bg-slate-50 rounded border border-slate-100">
+                                                    <p className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Primary Threat</p>
+                                                    <p className="text-lg font-bold text-red-600 mt-1">{riskData.long_term.primary_threat}</p>
                                                 </div>
                                             </div>
 
@@ -175,9 +175,9 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
                                                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Heat Stress Trend</p>
                                                 <div className="grid grid-cols-3 gap-2 text-center">
                                                     {Object.entries(riskData.long_term.heat_stress_trend).map(([year, val]: [string, any]) => (
-                                                        <div key={year} className="bg-orange-50 p-2 rounded border border-orange-100">
-                                                            <div className="text-xs text-gray-400">{year.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</div>
-                                                            <div className="font-semibold text-orange-700">{val} days</div>
+                                                        <div key={year} className="bg-amber-50 p-2 rounded border border-amber-100">
+                                                            <div className="text-xs text-amber-600/70 font-medium">{year.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</div>
+                                                            <div className="font-bold text-amber-800">{val} days</div>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -187,8 +187,7 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
                                         {/* Time Series Chart */}
                                         <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
                                             <div className="mb-4">
-                                                <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                                                    <span>📈</span>
+                                                <h4 className="font-semibold text-slate-900">
                                                     Climate Projection
                                                 </h4>
                                                 <p className="text-sm text-gray-500 mt-1">{riskData.time_series_graph.description}</p>
@@ -228,6 +227,11 @@ export default function RiskAnalyticsPanel({ selectedProjectId }: RiskAnalyticsP
                                                         {/* Optional: Add Temp Limit Line if needed, though Area chart might get busy */}
                                                     </AreaChart>
                                                 </ChartContainer>
+                                            </div>
+
+                                            {/* Random Blog Spotlight */}
+                                            <div className="mt-8">
+                                                <RandomBlogSpotlight />
                                             </div>
                                         </div>
 

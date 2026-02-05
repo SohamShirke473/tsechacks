@@ -19,14 +19,14 @@ export default function DashboardPage() {
     const selectedProject = projects?.find(p => p._id === selectedProjectId);
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+        <main className="min-h-screen bg-slate-50 p-6">
             <div className="max-w-[1800px] mx-auto space-y-6">
-                <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-2">
-                        <h1 className="text-4xl font-bold text-gray-900 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-6">
+                    <div className="space-y-1">
+                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
                             Project Dashboard
                         </h1>
-                        <p className="text-gray-600 text-lg">
+                        <p className="text-slate-500 text-sm">
                             Monitor project analytics and risk predictions
                         </p>
                     </div>
@@ -56,21 +56,21 @@ export default function DashboardPage() {
                         />
 
                         {/* View Mode Toggle */}
-                        <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 inline-flex">
+                        <div className="bg-white p-1 rounded-lg border border-gray-200 inline-flex shadow-sm">
                             <button
                                 onClick={() => setViewMode('risk')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'risk'
-                                    ? 'bg-blue-600 text-white shadow-md'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'risk'
+                                    ? 'bg-slate-900 text-white shadow-sm'
+                                    : 'text-slate-600 hover:bg-slate-50'
                                     }`}
                             >
                                 Risk Analytics
                             </button>
                             <button
                                 onClick={() => setViewMode('continuous')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'continuous'
-                                    ? 'bg-emerald-600 text-white shadow-md'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'continuous'
+                                    ? 'bg-blue-700 text-white shadow-sm'
+                                    : 'text-slate-600 hover:bg-slate-50'
                                     }`}
                             >
                                 Continuous Analysis

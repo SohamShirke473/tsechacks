@@ -15,6 +15,7 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    useDroppable,
     type DragStartEvent,
     type DragEndEvent,
     type DragOverEvent,
@@ -159,6 +160,10 @@ function KanbanColumn({
     onTaskClick: (task: Task) => void;
     isGenerating: boolean;
 }) {
+    const { setNodeRef } = useDroppable({
+        id: column._id,
+    });
+
     const taskIds = column.tasks.map((t) => t._id);
 
     const columnColors: Record<string, string> = {
@@ -169,7 +174,8 @@ function KanbanColumn({
 
     return (
         <div
-            className={`flex-shrink-0 w-80 bg-gray-50 rounded-xl border border-gray-200 border-t-4 ${columnColors[column.title] || "border-t-gray-400"}`}
+            ref={setNodeRef}
+            className={`shrink-0 w-80 bg-gray-50 rounded-xl border border-gray-200 border-t-4 ${columnColors[column.title] || "border-t-gray-400"}`}
         >
             <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
@@ -217,7 +223,7 @@ function KanbanColumn({
                     ) : (
                         <Sparkles className="w-4 h-4 mr-2" />
                     )}
-                    Generate with AI
+                    Generate Tasks
                 </Button>
             </div>
         </div>
@@ -232,14 +238,19 @@ function AITaskGeneratorModal({
     isOpen,
     onClose,
     onGenerate,
+    onGenerateFromAnalytics,
     isLoading,
+    hasProject,
 }: {
     isOpen: boolean;
     onClose: () => void;
     onGenerate: (prompt: string) => void;
+    onGenerateFromAnalytics?: () => void;
     isLoading: boolean;
+    hasProject: boolean;
 }) {
     const [prompt, setPrompt] = useState("");
+    const [mode, setMode] = useState<"prompt" | "analytics">("prompt");
 
     if (!isOpen) return null;
 
@@ -256,54 +267,115 @@ function AITaskGeneratorModal({
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-purple-500" />
-                        Generate Tasks with AI
+                        Generate Tasks
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                What tasks do you need?
-                            </label>
-                            <textarea
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
-                                placeholder="e.g., Tasks for building a user authentication system..."
-                                className="w-full min-h-[100px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                                disabled={isLoading}
-                            />
-                        </div>
-                        <div className="flex gap-2 justify-end">
+                    <div className="flex gap-2 mb-4">
+                        <Button
+                            variant={mode === "prompt" ? "default" : "outline"}
+                            onClick={() => setMode("prompt")}
+                            className="flex-1"
+                        >
+                            Custom Prompt
+                        </Button>
+                        {hasProject && (
                             <Button
-                                type="button"
-                                variant="outline"
-                                onClick={onClose}
-                                disabled={isLoading}
+                                variant={mode === "analytics" ? "default" : "outline"}
+                                onClick={() => setMode("analytics")}
+                                className="flex-1"
                             >
-                                Cancel
+                                From Analytics
                             </Button>
-                            <Button
-                                type="submit"
-                                disabled={!prompt.trim() || isLoading}
-                                className="bg-purple-600 hover:bg-purple-700"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Generating...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-4 h-4 mr-2" />
-                                        Generate Tasks
-                                    </>
-                                )}
-                            </Button>
+                        )}
+                    </div>
+
+                    {mode === "prompt" ? (
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    What tasks do you need?
+                                </label>
+                                <textarea
+                                    value={prompt}
+                                    onChange={(e) => setPrompt(e.target.value)}
+                                    placeholder="e.g., Tasks for building a user authentication system..."
+                                    className="w-full min-h-[100px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                    disabled={isLoading}
+                                />
+                            </div>
+                            <div className="flex gap-2 justify-end">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={onClose}
+                                    disabled={isLoading}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    disabled={!prompt.trim() || isLoading}
+                                    className="bg-purple-600 hover:bg-purple-700"
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Generating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="w-4 h-4 mr-2" />
+                                            Generate Tasks
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        </form>
+                    ) : (
+                        <div className="space-y-4">
+                            <div className="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                                <h4 className="font-medium text-purple-900 mb-2 flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4" />
+                                    AI Analysis
+                                </h4>
+                                <p className="text-sm text-purple-700">
+                                    We'll analyze your project's risk data, soil conditions, and growth metrics to generate targeted tasks for your team.
+                                </p>
+                            </div>
+                            <div className="flex gap-2 justify-end">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={onClose}
+                                    disabled={isLoading}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="button"
+                                    onClick={onGenerateFromAnalytics}
+                                    disabled={isLoading}
+                                    className="bg-purple-600 hover:bg-purple-700"
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Analyzing Project...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="w-4 h-4 mr-2" />
+                                            Generate from Data
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
                         </div>
-                    </form>
+                    )}
                 </CardContent>
             </Card>
-        </div>
+        </div >
     );
 }
 
@@ -402,13 +474,15 @@ function AddTaskModal({
 // MAIN KANBAN BOARD COMPONENT
 // ============================================================
 
-export default function KanbanBoard({ boardId }: { boardId: Id<"kanbanBoards"> }) {
+export default function KanbanBoard({ boardId, projectId }: { boardId: Id<"kanbanBoards">, projectId?: Id<"projects"> | null }) {
     const board = useQuery(api.kanban.getBoard, { boardId });
     const moveTask = useMutation(api.kanban.moveTask);
     const createTask = useMutation(api.kanban.createTask);
     const deleteTask = useMutation(api.kanban.deleteTask);
     const generateTasks = useAction(api.aiTasks.generateTasks);
+    const generateTasksFromAnalytics = useAction(api.aiTasks.generateTasksFromAnalytics);
     const seedBlogs = useMutation(api.seedBlogs.seed);
+    const initializeDefaultColumns = useMutation(api.kanban.initializeDefaultColumns);
 
 
     const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -524,6 +598,24 @@ export default function KanbanBoard({ boardId }: { boardId: Id<"kanbanBoards"> }
         }
     };
 
+    const handleGenerateFromAnalytics = async () => {
+        if (!aiModalColumnId || !projectId) return;
+
+        setIsGenerating(true);
+        try {
+            await generateTasksFromAnalytics({
+                projectId,
+                columnId: aiModalColumnId,
+            });
+            setAiModalColumnId(null);
+        } catch (error) {
+            console.error("Failed to generate tasks from analytics:", error);
+            alert("Failed to generate tasks. Please ensure the project has analytics data.");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     if (!board) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -539,13 +631,28 @@ export default function KanbanBoard({ boardId }: { boardId: Id<"kanbanBoards"> }
         }
     };
 
+    const handleFixLayout = async () => {
+        await initializeDefaultColumns({ boardId: board._id });
+    };
+
+    const hasDefaultColumns = ["In Progress", "Done"].every(title =>
+        board.columns.some(c => c.title === title)
+    );
+
     return (
         <div className="h-full flex flex-col">
             <div className="p-4 border-b bg-white flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Kanban Board</h2>
-                <Button variant="outline" size="sm" onClick={handleSeed}>
-                    Seed Blog Data
-                </Button>
+                <div className="flex gap-2">
+                    {!hasDefaultColumns && (
+                        <Button variant="outline" size="sm" onClick={handleFixLayout}>
+                            Fix Layout
+                        </Button>
+                    )}
+                    <Button variant="outline" size="sm" onClick={handleSeed}>
+                        Seed Blog Data
+                    </Button>
+                </div>
             </div>
             <div className="flex-1 overflow-x-auto p-4">
                 <DndContext
@@ -590,7 +697,9 @@ export default function KanbanBoard({ boardId }: { boardId: Id<"kanbanBoards"> }
                 isOpen={aiModalColumnId !== null}
                 onClose={() => setAiModalColumnId(null)}
                 onGenerate={handleGenerateAI}
+                onGenerateFromAnalytics={handleGenerateFromAnalytics}
                 isLoading={isGenerating}
+                hasProject={!!projectId}
             />
 
             <TaskDetailModal
