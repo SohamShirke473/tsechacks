@@ -188,16 +188,33 @@ export const generateTasks = action({
 
 RULES:
 - Return ONLY a valid JSON array of tasks, no other text
-- Each task must have: "title" (string, max 60 chars), "description" (string, 1-2 sentences), "priority" ("low" | "medium" | "high")
+- Each task must have:
+  - "title" (string, max 60 chars)
+  - "description" (string, 1-2 sentences)
+  - "priority" ("low" | "medium" | "high")
+  - "tags" (array of strings, max 3 tags)
+  - "suggestedHeadings" (array of strings, 3-5 sub-steps or headings)
+  - "url" (optional string, can be a relevant documentation link or empty)
 - Generate exactly 3-5 specific, actionable tasks
 - Tasks should be clear, concrete, and immediately actionable
 - Order tasks by importance/priority
 
 Example output:
 [
-  {"title": "Design login page wireframe", "description": "Create low-fidelity wireframe for the login screen with email and password fields.", "priority": "high"},
-  {"title": "Set up authentication API", "description": "Implement JWT-based authentication endpoints.", "priority": "high"},
-  {"title": "Write unit tests", "description": "Add test coverage for auth flow.", "priority": "medium"}
+  {
+    "title": "Design login page wireframe",
+    "description": "Create low-fidelity wireframe for the login screen.",
+    "priority": "high",
+    "tags": ["design", "ui", "auth"],
+    "suggestedHeadings": ["Sketch layout", "Review with team", "Finalize mockup"]
+  },
+  {
+    "title": "Set up authentication API",
+    "description": "Implement JWT-based authentication endpoints.",
+    "priority": "high",
+    "tags": ["backend", "api", "security"],
+    "suggestedHeadings": ["Setup middleware", "Create login route", "Create register route"]
+  }
 ]`,
         });
 
@@ -211,7 +228,14 @@ Example output:
         const responseText = result.response.text();
 
         // Parse the JSON response
-        let tasks: Array<{ title: string; description: string; priority: string }>;
+        let tasks: Array<{
+            title: string;
+            description: string;
+            priority: string;
+            tags?: string[];
+            suggestedHeadings?: string[];
+            url?: string;
+        }>;
         try {
             let cleanedResponse = responseText.trim();
             if (cleanedResponse.startsWith("```json")) {
@@ -242,6 +266,9 @@ Example output:
                 title: t.title.slice(0, 100),
                 description: t.description?.slice(0, 500) || "",
                 priority: ["low", "medium", "high"].includes(t.priority) ? t.priority : "medium",
+                tags: Array.isArray(t.tags) ? t.tags.slice(0, 5) : [],
+                suggestedHeadings: Array.isArray(t.suggestedHeadings) ? t.suggestedHeadings.slice(0, 10) : [],
+                url: t.url,
             }));
 
         if (validTasks.length === 0) {

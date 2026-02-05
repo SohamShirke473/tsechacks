@@ -16,6 +16,7 @@ import type * as gemini from "../gemini.js";
 import type * as kanban from "../kanban.js";
 import type * as projects from "../projects.js";
 import type * as riskPrediction from "../riskPrediction.js";
+import type * as seedBlogs from "../seedBlogs.js";
 
 import type {
   ApiFromModules,
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   kanban: typeof kanban;
   projects: typeof projects;
   riskPrediction: typeof riskPrediction;
+  seedBlogs: typeof seedBlogs;
 }>;
 
 /**

@@ -26,6 +26,8 @@ import {
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import KanbanBoard from "@/components/KanbanBoard";
+
 
 // ============================================================
 // TYPES
@@ -358,7 +360,8 @@ function CreateBoardModal({
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-purple-500" />
-                        Create AI Task Board
+                        Create Action Plan
+
                     </CardTitle>
                     <CardDescription>
                         Select a project to generate tasks from its analytics data
@@ -422,7 +425,7 @@ function BoardSelector({
     const handleCreate = async (projectId: Id<"projects">) => {
         const project = projects?.find((p) => p._id === projectId);
         const boardId = await createBoard({
-            name: project?.name ? `${project.name} Tasks` : "AI Task Board",
+            name: project?.name ? `${project.name} Action Plan` : "Action Plan",
             description: `Tasks generated from ${project?.name || "project"} analytics`,
         });
         onSelectBoard(boardId, projectId);
@@ -451,7 +454,8 @@ function BoardSelector({
                     <span className="text-sm font-medium">AI-Powered</span>
                 </div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    AI Task Generator
+                    Action Planning
+
                 </h1>
                 <p className="text-gray-600">
                     Generate actionable tasks from your project's risk and analytics data
@@ -468,7 +472,7 @@ function BoardSelector({
                         <Sparkles className="w-6 h-6 text-gray-400 group-hover:text-purple-600" />
                     </div>
                     <span className="font-medium text-gray-500 group-hover:text-purple-600">
-                        New AI Task Board
+                        New Action Plan
                     </span>
                 </button>
 
@@ -579,7 +583,9 @@ export default function KanbanPage() {
                         </div>
 
                         {/* Kanban Todo Board */}
-                        <KanbanTodoBoard boardId={selectedBoardId} projectId={selectedProjectId} />
+                        {/* Kanban Todo Board */}
+                        <KanbanBoard boardId={selectedBoardId} />
+
                     </div>
                 ) : (
                     <BoardSelector onSelectBoard={handleSelectBoard} />

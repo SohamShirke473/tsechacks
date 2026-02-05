@@ -284,7 +284,11 @@ export const createTasksBulk = mutation({
             title: v.string(),
             description: v.optional(v.string()),
             priority: v.optional(v.string()),
+            url: v.optional(v.string()),
+            tags: v.optional(v.array(v.string())),
+            suggestedHeadings: v.optional(v.array(v.string())),
         })),
+
     },
     handler: async (ctx, args) => {
         const existingTasks = await ctx.db
@@ -305,6 +309,9 @@ export const createTasksBulk = mutation({
                 priority: task.priority ?? "medium",
                 order: order++,
                 aiGenerated: true,
+                url: task.url,
+                tags: task.tags,
+                suggestedHeadings: task.suggestedHeadings,
             });
             createdIds.push(id);
         }

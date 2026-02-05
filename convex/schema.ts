@@ -153,6 +153,9 @@ export default defineSchema({
         description: v.optional(v.string()),
         priority: v.optional(v.string()), // "low" | "medium" | "high"
         order: v.number(),
-        aiGenerated: v.optional(v.boolean())
+        aiGenerated: v.optional(v.boolean()),
+        url: v.optional(v.string()),
+        tags: v.optional(v.array(v.string())),
+        suggestedHeadings: v.optional(v.array(v.string()))
     }).index("by_column", ["columnId"])
 });

@@ -28,6 +28,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Plus, Sparkles, Trash2, GripVertical, X, Loader2 } from "lucide-react";
 
+import { TaskDetailModal } from "./TaskDetailModal";
+
 // ============================================================
 // TYPES
 // ============================================================
@@ -40,6 +42,9 @@ interface Task {
     priority?: string;
     order: number;
     aiGenerated?: boolean;
+    url?: string;
+    tags?: string[];
+    suggestedHeadings?: string[];
 }
 
 interface Column {
@@ -61,7 +66,7 @@ interface Board {
 // KANBAN CARD COMPONENT
 // ============================================================
 
-function KanbanCard({ task, onDelete }: { task: Task; onDelete: () => void }) {
+function KanbanCard({ task, onDelete, onClick }: { task: Task; onDelete: () => void; onClick: (task: Task) => void }) {
     const {
         attributes,
         listeners,
@@ -87,7 +92,8 @@ function KanbanCard({ task, onDelete }: { task: Task; onDelete: () => void }) {
         <div
             ref={setNodeRef}
             style={style}
-            className="group relative bg-white rounded-lg border border-gray-200 p-3 shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing"
+            onClick={() => onClick(task)}
+            className="group relative bg-white rounded-lg border border-gray-200 p-3 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer active:cursor-grabbing hover:border-purple-200"
         >
             <div className="flex items-start gap-2">
                 <button
@@ -143,12 +149,14 @@ function KanbanColumn({
     onAddTask,
     onDeleteTask,
     onGenerateAI,
+    onTaskClick,
     isGenerating,
 }: {
     column: Column;
     onAddTask: (columnId: Id<"kanbanColumns">) => void;
     onDeleteTask: (taskId: Id<"kanbanTasks">) => void;
     onGenerateAI: (columnId: Id<"kanbanColumns">) => void;
+    onTaskClick: (task: Task) => void;
     isGenerating: boolean;
 }) {
     const taskIds = column.tasks.map((t) => t._id);
@@ -180,6 +188,7 @@ function KanbanColumn({
                                 key={task._id}
                                 task={task}
                                 onDelete={() => onDeleteTask(task._id)}
+                                onClick={onTaskClick}
                             />
                         ))}
                     </div>
@@ -399,10 +408,13 @@ export default function KanbanBoard({ boardId }: { boardId: Id<"kanbanBoards"> }
     const createTask = useMutation(api.kanban.createTask);
     const deleteTask = useMutation(api.kanban.deleteTask);
     const generateTasks = useAction(api.aiTasks.generateTasks);
+    const seedBlogs = useMutation(api.seedBlogs.seed);
+
 
     const [activeTask, setActiveTask] = useState<Task | null>(null);
     const [addTaskColumnId, setAddTaskColumnId] = useState<Id<"kanbanColumns"> | null>(null);
     const [aiModalColumnId, setAiModalColumnId] = useState<Id<"kanbanColumns"> | null>(null);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
 
     const sensors = useSensors(
@@ -520,37 +532,53 @@ export default function KanbanBoard({ boardId }: { boardId: Id<"kanbanBoards"> }
         );
     }
 
-    return (
-        <div className="h-full">
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCorners}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-            >
-                <div className="flex gap-4 overflow-x-auto pb-4 px-1">
-                    {board.columns.map((column) => (
-                        <KanbanColumn
-                            key={column._id}
-                            column={column}
-                            onAddTask={setAddTaskColumnId}
-                            onDeleteTask={handleDeleteTask}
-                            onGenerateAI={setAiModalColumnId}
-                            isGenerating={isGenerating && aiModalColumnId === column._id}
-                        />
-                    ))}
-                </div>
+    const handleSeed = async () => {
+        if (confirm("This will reset the board and seed blog data. Continue?")) {
+            await seedBlogs({ reset: true });
+            window.location.reload();
+        }
+    };
 
-                <DragOverlay>
-                    {activeTask ? (
-                        <div className="bg-white rounded-lg border-2 border-primary p-3 shadow-xl rotate-3 opacity-90">
-                            <h4 className="font-medium text-gray-900 text-sm">
-                                {activeTask.title}
-                            </h4>
-                        </div>
-                    ) : null}
-                </DragOverlay>
-            </DndContext>
+    return (
+        <div className="h-full flex flex-col">
+            <div className="p-4 border-b bg-white flex justify-between items-center">
+                <h2 className="text-lg font-semibold">Kanban Board</h2>
+                <Button variant="outline" size="sm" onClick={handleSeed}>
+                    Seed Blog Data
+                </Button>
+            </div>
+            <div className="flex-1 overflow-x-auto p-4">
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCorners}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                >
+                    <div className="flex gap-4 overflow-x-auto pb-4 px-1">
+                        {board.columns.map((column) => (
+                            <KanbanColumn
+                                key={column._id}
+                                column={column}
+                                onAddTask={setAddTaskColumnId}
+                                onDeleteTask={handleDeleteTask}
+                                onGenerateAI={setAiModalColumnId}
+                                onTaskClick={setSelectedTask}
+                                isGenerating={isGenerating && aiModalColumnId === column._id}
+                            />
+                        ))}
+                    </div>
+
+                    <DragOverlay>
+                        {activeTask ? (
+                            <div className="bg-white rounded-lg border-2 border-primary p-3 shadow-xl rotate-3 opacity-90">
+                                <h4 className="font-medium text-gray-900 text-sm">
+                                    {activeTask.title}
+                                </h4>
+                            </div>
+                        ) : null}
+                    </DragOverlay>
+                </DndContext>
+            </div>
 
             <AddTaskModal
                 isOpen={addTaskColumnId !== null}
@@ -564,6 +592,13 @@ export default function KanbanBoard({ boardId }: { boardId: Id<"kanbanBoards"> }
                 onGenerate={handleGenerateAI}
                 isLoading={isGenerating}
             />
+
+            <TaskDetailModal
+                isOpen={!!selectedTask}
+                onClose={() => setSelectedTask(null)}
+                task={selectedTask as any}
+            />
         </div>
     );
 }
+
